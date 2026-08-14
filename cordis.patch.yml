@@ -1,0 +1,14 @@
+# dsh-client-ui-girlfriend —— 安装行清单（bundle 层）
+#
+# 本文件把插件自身注册进 dsh web 的启动清单：
+#  - `dsh plugin --profile web add dsh-client-ui-girlfriend` 后会被自动识别为
+#    bundle 层（package.json 的 dsh.bundle.patch 指向本文件），加入
+#    `~/.dsh/profiles/web` 的 dsh.profile.bundles，无需手写任何配置。
+#  - 手动安装时同样生效：把本文件内容追加进 `~/.dsh/profiles/web/cordis.patch.yml`。
+#
+# 注意：行内的 `name` 必须等于包的发布名（装载器按这个名字在 profile 的
+# node_modules 中解析包），改名发布时请同步修改这里并重新盖戳 bundle id。
+
+- insert:
+    - id: ui-girlfriend
+      name: 'dsh-client-ui-girlfriend'
