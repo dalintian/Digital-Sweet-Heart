@@ -51,12 +51,14 @@
 
 | 项目 | 要求 |
 |---|---|
-| 操作系统 | Windows 10+ / macOS / Linux |
+| 操作系统 | Windows 10+ ✅ 已实测；macOS / Linux ⚠️ 见下方说明 |
 | Node.js | ≥ 22 |
 | 包管理器 | pnpm |
 | 模型接口 | 自备，任意 OpenAI 兼容端点（`/chat/completions`、`/images/generations`、`/videos/generations`） |
 
 > 不需要任何 DeepSeek 官方 Key，四组模型全部由你自由配置。
+
+> ⚠️ **平台兼容性说明（如实声明）**：本插件代码本身**没有平台特有逻辑**——宿主端只用 Node 跨平台 API（`node:fs`/`node:http`），浏览器端是标准 Web 技术（`fetch`/`FileReader`/`crypto.randomUUID`），安装脚本在 Windows 用 junction、macOS/Linux 用符号链接（`process.platform` 分支）。**目前只在 Windows 上进行了实机验证**；macOS / Linux 按代码推演应当可用，但未经真机测试。如在 macOS / Linux 上遇到问题，欢迎到仓库提 Issue 反馈，会尽快修复。
 
 ---
 
