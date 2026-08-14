@@ -1,6 +1,6 @@
 {
   "name": "dsh-client-ui-girlfriend",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "AI 女友助手（Digital-Sweet-Heart）：把 DeepSeek Harness 的 Web 界面改造成微信风格的虚拟女友聊天应用（好友列表 / 对话 / 人设设定 / AI 肖像 / 发图发视频 / 照片分析），支持自定义对话、视觉、文生图、文生视频四组 OpenAI 兼容 API",
   "repository": {
     "type": "git",
@@ -48,9 +48,11 @@
     "lib/client.js.map",
     "lib/types/**/*.d.ts",
     "cordis.patch.yml",
+    "scripts/postinstall.cjs",
     "README.md"
   ],
   "scripts": {
+    "postinstall": "node scripts/postinstall.cjs",
     "pack:dry": "npm pack --dry-run"
   },
   "keywords": [

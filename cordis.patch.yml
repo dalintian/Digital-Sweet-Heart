@@ -1,14 +1,21 @@
-# dsh-client-ui-girlfriend —— 安装行清单（bundle 层）
+# dsh-client-ui-girlfriend —— 启动行清单（bundle 层）
 #
-# 本文件把插件自身注册进 dsh web 的启动清单：
-#  - `dsh plugin --profile web add dsh-client-ui-girlfriend` 后会被自动识别为
-#    bundle 层（package.json 的 dsh.bundle.patch 指向本文件），加入
-#    `~/.dsh/profiles/web` 的 dsh.profile.bundles，无需手写任何配置。
-#  - 手动安装时同样生效：把本文件内容追加进 `~/.dsh/profiles/web/cordis.patch.yml`。
+# 本文件把插件自身注册进 dsh web 的启动清单，并在默认情况下**禁用**：
+#  - 装入启动清单：`dsh plugin --profile web add dsh-client-ui-girlfriend` 后会被
+#    自动识别为 bundle 层（package.json 的 dsh.bundle.patch 指向本文件），
+#    加入 web profile 的 dsh.profile.bundles；
+#  - 默认禁用：避免改变 `pnpm dsh web` 的原生界面。
+#  - 安装后置脚本（scripts/postinstall.cjs）会自动生成一个 `girlfriend` profile，
+#    其 cordis.patch.yml 把本行重新启用（disabled: false）并把端口默认到 3081，
+#    从而 `pnpm dsh --profile girlfriend` 即女友界面，两条命令并存：
+#       pnpm dsh web                     → 原生界面（默认 3080）
+#       pnpm dsh --profile girlfriend    → 女友界面（默认 3081）
 #
+# 手动安装时同样生效：把本文件内容追加进 `~/.dsh/profiles/web/cordis.patch.yml`。
 # 注意：行内的 `name` 必须等于包的发布名（装载器按这个名字在 profile 的
 # node_modules 中解析包），改名发布时请同步修改这里并重新盖戳 bundle id。
 
 - insert:
     - id: ui-girlfriend
       name: 'dsh-client-ui-girlfriend'
+      disabled: true

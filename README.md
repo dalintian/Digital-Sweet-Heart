@@ -81,42 +81,57 @@ pnpm dsh plugin --profile web add github:dalintian/Digital-Sweet-Heart
 # 备选来源（三选一）：
 #   npm 已发布：  pnpm dsh plugin --profile web add dsh-client-ui-girlfriend
 #   本地目录：    pnpm dsh plugin --profile web add /path/to/Digital-Sweet-Heart
-#   手动：        cd ~/.dsh/profiles/web && pnpm add github:dalintian/Digital-Sweet-Heart   # 再按下方 4.2 加行
+#   手动：        cd ~/.dsh/profiles/web && pnpm add github:dalintian/Digital-Sweet-Heart   # 再补跑一次 postinstall，见下
 
-# 4. 重新启动 DSH Web（插件行只在启动时加载）
+# 4. 重新启动 DSH Web
 pnpm dsh web
 ```
 
-浏览器打开终端打印的地址（默认 `http://127.0.0.1:3080`），左侧出现「我的女友」列表就成功了 ✅
+装完即**自动生成两套配置**：插件安装钩子（postinstall）会在 `~/.dsh/profiles/` 下创建一个 `girlfriend` 配置，同时**不影响现有 web 配置**——所以接下来你有两条命令，随时切换、永远不用再改设置：
 
-> 拿到别人构建好的 DSH 发行包？跳过第 1 步，解压后直接执行第 3、4 步。
-> Git 源安装若被 pnpm 拦截 build 脚本：把提示的键加进 `~/.dsh/profiles/web/pnpm-workspace.yaml` 的 `allowBuilds` 后重试。
+```bash
+pnpm dsh web                     # 原生界面 → http://127.0.0.1:3080
+pnpm dsh --profile girlfriend    # 女友界面 → http://127.0.0.1:3081
+```
+
+> - Git 源安装若被 pnpm 拦截 build 脚本（postinstall）：把提示的键加进 `~/.dsh/profiles/web/pnpm-workspace.yaml` 的 `allowBuilds` 后重试（`dsh plugin` 会打印具体操作）。
+> - 拿到别人构建好的 DSH 发行包？跳过第 1 步，解压后直接执行第 3、4 步。
+> - 手动安装（不走 `dsh plugin`）者：`pnpm add` 后若 postinstall 未执行，手动运行一次 `node node_modules/dsh-client-ui-girlfriend/scripts/postinstall.cjs`。
 
 ### 场景 B：已经装了 DeepSeek Harness
 
 ```bash
-pnpm dsh plugin --profile web add github:dalintian/Digital-Sweet-Heart   # 1. 安装（自动注册为启动层；GitHub 源首次按提示放行 build 脚本）
-pnpm dsh web                                                            # 2. 重启
+pnpm dsh plugin --profile web add github:dalintian/Digital-Sweet-Heart   # 1. 安装（自动注册；postinstall 自动生成两套配置；GitHub 源首次按提示放行 build 脚本）
+pnpm dsh web                                                            # 2. 重启（仍是原生界面）
 ```
 
-打开地址即见女友界面。正在运行的老实例（比如 3080）不受影响——新插件对**下次启动**生效。
+安装完成后的两条启动命令：
+
+```bash
+pnpm dsh web                     # 原生界面    → http://127.0.0.1:3080
+pnpm dsh --profile girlfriend    # 女友界面    → http://127.0.0.1:3081
+```
+
+正在运行的老实例不受影响；新配置对**下次启动**生效。
 
 ### 手动安装（不用 dsh plugin 命令时）
 
 ```bash
 cd ~/.dsh/profiles/web
 pnpm add github:dalintian/Digital-Sweet-Heart   # 或 npm 包名 dsh-client-ui-girlfriend / 本地目录
+node node_modules/dsh-client-ui-girlfriend/scripts/postinstall.cjs   # 若未自动执行，补跑一次生成女友配置
 ```
 
-编辑 `~/.dsh/profiles/web/cordis.patch.yml` 追加：
+手动安装会同时生成两套配置：web（默认原生）+ `~/.dsh/profiles/girlfriend/`（女友）。上面 `pnpm dsh --profile girlfriend` 即可用。
+
+> 如果某次安装没有执行 postinstall（例如通过 git/path 依赖安装时 pnpm 默认跳过生命周期脚本），也可以手动把以下内容加入 `~/.dsh/profiles/web/cordis.patch.yml` 后重启 `dsh web`（插件以**默认禁用**加入，不改变原生界面）：
 
 ```yaml
 - insert:
     - id: ui-girlfriend
       name: 'dsh-client-ui-girlfriend'
+      disabled: true
 ```
-
-重启 `pnpm dsh web` 即可。（包内自带的 `cordis.patch.yml` 就是这段内容。）
 
 ### 升级 / 卸载
 
@@ -125,7 +140,7 @@ pnpm dsh plugin --profile web update github:dalintian/Digital-Sweet-Heart   # �
 pnpm dsh plugin --profile web remove  dsh-client-ui-girlfriend              # 卸载
 ```
 
-重启即恢复原界面；角色数据文件不会被删除（在 `<DSH 主目录>/storages/girlfriend/`）。
+卸载后重启即恢复原生界面；角色数据文件不会被删除（在 `<DSH 主目录>/storages/girlfriend/`）。**彻底移除女友配置**：顺手删掉整个 `~/.dsh/profiles/girlfriend/` 目录即可（里面只有本插件生成的 4 个配置文件）。
 
 ---
 
@@ -150,6 +165,7 @@ pnpm dsh plugin --profile web remove  dsh-client-ui-girlfriend              # �
 |---|---|
 | 角色设定（Markdown，含 `## 肖像图` 路径） | `<DSH 主目录>/storages/girlfriend/<角色ID>.md`（如 `~/.dsh/storages/girlfriend/`） |
 | 肖像图 | 同目录 `images/<角色ID>.png` |
+| 两套界面配置（web / girlfriend profile） | `<DSH 主目录>/profiles/`（安装时自动生成，无需手动编辑） |
 | API Key / 设置 / 聊天记录 | 浏览器 localStorage（键 `dsh.girlfriend.*`） |
 
 启动时会自动读回 Markdown 设定——手改文件、刷新页面，人设就更新了。
@@ -158,8 +174,9 @@ pnpm dsh plugin --profile web remove  dsh-client-ui-girlfriend              # �
 
 ## 🧐 常见问题
 
-- **我原来的界面怎么没变？** 插件行只在 dsh web **启动时**加载。重启后界面才会被接管。
-- **能和我已有的 DSH 实例并存吗？** 能：`pnpm dsh web --port 3081` 另开一个端口，两个实例互不干扰（避免同时在两边编辑同一个角色即可）。
+- **安装后 `pnpm dsh web` 怎么还是原生界面？** 这是设计如此：插件默认以禁用状态加入配置，保证原生主界面不变；女友界面用 `pnpm dsh --profile girlfriend` 打开（安装时自动生成好这套配置）。
+- **女友配置是怎么来的？** 安装钩子（postinstall）在 `<DSH 主目录>/profiles/girlfriend/` 生成了 4 个配置文件 + 一个指向插件安装目录的链接，全程零操作。
+- **能和我已有的 DSH 实例并存吗？** 能：两条命令各自默认端口（3080 / 3081），互不干扰；还可以在命令后加 `--port <数字>` 自定义端口。
 - **发不出视频？** 各家文生视频标准不统一：支持"直接返回 URL"和"任务 id 轮询"两种形态，异步任务的轮询路径可在 ⚙ 里配置。极少数厂商需自行适配。
 - **模型接口报 CORS？** 插件经宿主端 `/girlfriend/*` 路由代理所有模型请求（同源），浏览器侧不存在 CORS 问题。
 - **安全说明**：与 DSH 其它本地接口一样，`/girlfriend/*` 不设鉴权（面向本机单人使用）；API Key 只发往你配置的端点。
@@ -170,9 +187,10 @@ pnpm dsh plugin --profile web remove  dsh-client-ui-girlfriend              # �
 
 - **项目仓库**：<https://github.com/dalintian/Digital-Sweet-Heart>——源码、Issues、PR 都在这里，欢迎来玩 ⭐
 - **运行机制**：双面插件（`dsh.client`）。宿主半身（Node）注册 `/girlfriend/*` 路由（模型代理 + 设定文件/肖像图读写）；浏览器半身接管 `sidebar` 与 `conversation` 两个插槽（`priority: -1`），左右两栏通过一个可观察模型共享状态。
-- **重新构建**：源码在 DSH 仓库 `packages/client/ui-girlfriend/`，`pnpm exec tsc -b packages/client/ui-girlfriend` 生成 `lib/types`，再 `pnpm --filter @deepseek-ai/dsh-client-ui-girlfriend bundle` 生成 `lib/`；把 `lib/` 与 `package.json`、`cordis.patch.yml` 等按本包结构排列即可发布。
+- **两套配置原理**：插件自带行清单（`cordis.patch.yml`）以 `disabled: true` 插入，`dsh web` 保持原生；`scripts/postinstall.cjs` 生成 `girlfriend` profile，其 patch 把该行改为 `disabled: false` 并把端口默认到 3081，由此实现两条命令。
+- **重新构建**：源码在 DSH 仓库 `packages/client/ui-girlfriend/`，`pnpm exec tsc -b packages/client/ui-girlfriend` 生成 `lib/types`，再 `pnpm --filter @deepseek-ai/dsh-client-ui-girlfriend bundle` 生成 `lib/`；把 `lib/` 与 `package.json`、`cordis.patch.yml`、`scripts/`、`README.md` 按本包结构排列即可发布。
 - **改名发布**：三处名字必须一致——`package.json` 的 `name`、`cordis.patch.yml` 的 `name`、bundle 内嵌 id（`__ModuleLoader__.load({ id })`）。改名后运行 `node scripts/reid.cjs <旧名> <新名>` 重盖戳，`npm pack --dry-run` 核对后 `npm publish`。
-- **约束提醒**：浏览器 bundle 只外部化平台模块（`react`）；除 type-only 外勿 value-import 其它 `@deepseek-ai/*` 包。
+- **约束提醒**：浏览器 bundle 只外部化平台模块（`react`）；除 type-only 外勿 value-import 其它 `@deepseek-ai/*` 包。postinstall 只在 DSH 主目录写配置文件与目录链接，不触碰用户数据。
 
 ## 📜 许可证
 
