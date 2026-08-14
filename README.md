@@ -1,4 +1,6 @@
-# 💘 DSH AI 女友助手（dsh-client-ui-girlfriend）
+# 💘 Digital-Sweet-Heart（甜心助手 · AI 女友插件）
+
+> **项目仓库：** <https://github.com/dalintian/Digital-Sweet-Heart> ｜ npm 包名：`dsh-client-ui-girlfriend`
 
 > 「把 DeepSeek Harness 变成你的 AI 女友」—— 一个微信风格、会记住你的 TA 的聊天插件。
 
@@ -74,12 +76,12 @@ pnpm run build
 # 2. 验证 DSH 能启动（看到 dsh web: http://127.0.0.1:3080 即成功，Ctrl+C 停掉）
 pnpm dsh web
 
-# 3. 安装本插件（npm 已发布时按包名装；未发布时用下面备选来源）
-pnpm dsh plugin --profile web add dsh-client-ui-girlfriend
+# 3. 安装本插件（推荐从 GitHub 仓库安装）
+pnpm dsh plugin --profile web add github:dalintian/Digital-Sweet-Heart
 # 备选来源（三选一）：
-#   本地目录：    pnpm dsh plugin --profile web add /path/to/dsh-client-ui-girlfriend
-#   GitHub 仓库： pnpm dsh plugin --profile web add github:你的账号/dsh-client-ui-girlfriend
-#   手动：        cd ~/.dsh/profiles/web && pnpm add dsh-client-ui-girlfriend   # 再按下方 4.2 加行
+#   npm 已发布：  pnpm dsh plugin --profile web add dsh-client-ui-girlfriend
+#   本地目录：    pnpm dsh plugin --profile web add /path/to/Digital-Sweet-Heart
+#   手动：        cd ~/.dsh/profiles/web && pnpm add github:dalintian/Digital-Sweet-Heart   # 再按下方 4.2 加行
 
 # 4. 重新启动 DSH Web（插件行只在启动时加载）
 pnpm dsh web
@@ -93,8 +95,8 @@ pnpm dsh web
 ### 场景 B：已经装了 DeepSeek Harness
 
 ```bash
-pnpm dsh plugin --profile web add dsh-client-ui-girlfriend   # 1. 安装（自动注册为启动层）
-pnpm dsh web                                                 # 2. 重启
+pnpm dsh plugin --profile web add github:dalintian/Digital-Sweet-Heart   # 1. 安装（自动注册为启动层；GitHub 源首次按提示放行 build 脚本）
+pnpm dsh web                                                            # 2. 重启
 ```
 
 打开地址即见女友界面。正在运行的老实例（比如 3080）不受影响——新插件对**下次启动**生效。
@@ -103,7 +105,7 @@ pnpm dsh web                                                 # 2. 重启
 
 ```bash
 cd ~/.dsh/profiles/web
-pnpm add dsh-client-ui-girlfriend      # 或 git/file 源
+pnpm add github:dalintian/Digital-Sweet-Heart   # 或 npm 包名 dsh-client-ui-girlfriend / 本地目录
 ```
 
 编辑 `~/.dsh/profiles/web/cordis.patch.yml` 追加：
@@ -119,8 +121,8 @@ pnpm add dsh-client-ui-girlfriend      # 或 git/file 源
 ### 升级 / 卸载
 
 ```bash
-pnpm dsh plugin --profile web update dsh-client-ui-girlfriend   # 升级
-pnpm dsh plugin --profile web remove  dsh-client-ui-girlfriend  # 卸载
+pnpm dsh plugin --profile web update github:dalintian/Digital-Sweet-Heart   # 升级
+pnpm dsh plugin --profile web remove  dsh-client-ui-girlfriend              # 卸载
 ```
 
 重启即恢复原界面；角色数据文件不会被删除（在 `<DSH 主目录>/storages/girlfriend/`）。
@@ -166,6 +168,7 @@ pnpm dsh plugin --profile web remove  dsh-client-ui-girlfriend  # 卸载
 
 ## 🛠 给开发者 / 维护者
 
+- **项目仓库**：<https://github.com/dalintian/Digital-Sweet-Heart>——源码、Issues、PR 都在这里，欢迎来玩 ⭐
 - **运行机制**：双面插件（`dsh.client`）。宿主半身（Node）注册 `/girlfriend/*` 路由（模型代理 + 设定文件/肖像图读写）；浏览器半身接管 `sidebar` 与 `conversation` 两个插槽（`priority: -1`），左右两栏通过一个可观察模型共享状态。
 - **重新构建**：源码在 DSH 仓库 `packages/client/ui-girlfriend/`，`pnpm exec tsc -b packages/client/ui-girlfriend` 生成 `lib/types`，再 `pnpm --filter @deepseek-ai/dsh-client-ui-girlfriend bundle` 生成 `lib/`；把 `lib/` 与 `package.json`、`cordis.patch.yml` 等按本包结构排列即可发布。
 - **改名发布**：三处名字必须一致——`package.json` 的 `name`、`cordis.patch.yml` 的 `name`、bundle 内嵌 id（`__ModuleLoader__.load({ id })`）。改名后运行 `node scripts/reid.cjs <旧名> <新名>` 重盖戳，`npm pack --dry-run` 核对后 `npm publish`。
